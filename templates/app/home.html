@@ -3,15 +3,37 @@
 {% block content %}
 <section>
     <h1>Добро пожаловать в магазин</h1>
-    <div class="slider">
+    <div class="slider" id="event-slider">
         {% for event in events %}
-            <img src="{{ event.image_url }}" alt="{{ event.title }}">
+            <article class="slide" id="event-{{ forloop.counter }}">
+                <a class="slide-arrow left" href="#event-{% if forloop.first %}{{ events|length }}{% else %}{{ forloop.counter|add:'-1' }}{% endif %}">←</a>
+                <a class="slide-arrow right" href="#event-{% if forloop.last %}1{% else %}{{ forloop.counter|add:'1' }}{% endif %}">→</a>
+                {% if event.image %}
+                    <img src="{{ event.image.url }}" alt="{{ event.title }}">
+                    <div class="slide-caption">{{ event.title }}</div>
+                {% else %}
+                    <div class="slide-fallback">
+                        <h3>{{ event.title }}</h3>
+                        <p>{{ event.description|default:'Добавьте изображение события в админке.'|truncatechars:90 }}</p>
+                    </div>
+                {% endif %}
+            </article>
         {% empty %}
-            <div class="placeholder">Пока нет событий</div>
-            <div class="placeholder">Добавьте события в админке</div>
-            <div class="placeholder">Раздел «События»</div>
+            <article class="slide">
+                <div class="slide-fallback">
+                    <h3>Пока нет событий</h3>
+                    <p>Добавьте события в админке, и они появятся в слайдере.</p>
+                </div>
+            </article>
         {% endfor %}
     </div>
+    {% if events %}
+        <div class="slider-dots">
+            {% for event in events %}
+                <a href="#event-{{ forloop.counter }}"></a>
+            {% endfor %}
+        </div>
+    {% endif %}
 </section>
 
 <section>

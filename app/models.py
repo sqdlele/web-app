@@ -30,7 +30,7 @@ class Product(models.Model):
 class Event(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True)
-    image_url = models.URLField('Ссылка на изображение')
+    image = models.ImageField('Изображение', upload_to='events/', blank=True, null=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

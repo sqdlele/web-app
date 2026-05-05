@@ -65,15 +65,15 @@ class Command(BaseCommand):
             profile.save()
 
         events_data = [
-            ("Сезонные скидки", "Большая распродажа популярных товаров.", "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=60"),
-            ("Новая коллекция", "Добавили свежие позиции в каталог.", "https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=900&q=60"),
-            ("Бесплатная доставка", "Акция на доставку при заказе от 3000 ₽.", "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=60"),
+            ("Сезонные скидки", "Большая распродажа популярных товаров."),
+            ("Новая коллекция", "Добавили свежие позиции в каталог."),
+            ("Бесплатная доставка", "Акция на доставку при заказе от 3000 ₽."),
         ]
         created_events = 0
-        for title, description, image_url in events_data:
+        for title, description in events_data:
             _, was_created = Event.objects.get_or_create(
                 title=title,
-                defaults={"description": description, "image_url": image_url, "is_active": True},
+                defaults={"description": description, "is_active": True},
             )
             created_events += int(was_created)
 

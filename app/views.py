@@ -13,6 +13,11 @@ from .models import Category, Event, Product, Profile, Purchase
 def _profile(user):
     return Profile.objects.get_or_create(user=user)[0]
 
+
+def _auth_redirect(request):
+    return redirect('profile') if request.user.is_authenticated else None
+
+
 def _cart_data(cart):
     items, total = [], Decimal('0.00')
     for p in Product.objects.filter(id__in=[int(i) for i in cart.keys()]):
@@ -21,6 +26,14 @@ def _cart_data(cart):
         total += line
         items.append({'product': p, 'qty': qty, 'line_total': line})
     return items, total
+
+
+def _create_purchases(user, cart):
+    for i, qty in cart.items():
+        p = Product.objects.filter(id=int(i)).first()
+        if p:
+            Purchase.objects.create(user=user, product=p, quantity=qty)
+
 
 def home(request):
     products = Product.objects.prefetch_related('images').order_by('?')[:3]
@@ -52,9 +65,11 @@ def product_detail(request, slug):
     product = get_object_or_404(Product.objects.prefetch_related('images'), slug=slug)
     image_id = request.GET.get('image')
     image = product.images.filter(id=image_id).first() if image_id else None
-    return render(request, 'app/product_detail.html', 
-    {'product': product, 
-    'selected_image': image or product.images.first()})
+    return render(
+        request,
+        'app/product_detail.html',
+        {'product': product, 'selected_image': image or product.images.first()},
+    )
 
 def _get_cart(request):
     return request.session.setdefault('cart', {})
@@ -92,10 +107,7 @@ def buy_now(request, product_id):
 @require_POST
 def checkout(request):
     cart = _get_cart(request)
-    for i, qty in cart.items():
-        p = Product.objects.filter(id=int(i)).first()
-        if p:
-            Purchase.objects.create(user=request.user, product=p, quantity=qty)
+    _create_purchases(request.user, cart)
     request.session['cart'] = {}
     messages.success(request, 'Покупка завершена.')
     return redirect('profile')
@@ -116,19 +128,21 @@ def profile_edit(request):
     return render(request, 'app/profile_edit.html', {'form': form})
 
 def register_view(request):
-    if request.user.is_authenticated:
-        return redirect('profile')
+    if to_profile := _auth_redirect(request):
+        return to_profile
     form = RegisterForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         u = form.save()
-        Profile.objects.get_or_create(user=u, defaults={'phone': form.cleaned_data['phone']})
+        p = _profile(u)
+        p.phone = form.cleaned_data['phone']
+        p.save()
         login(request, u)
         return redirect('profile')
     return render(request, 'app/auth_form.html', {'form': form, 'title': 'Регистрация'})
 
 def login_view(request):
-    if request.user.is_authenticated:
-        return redirect('profile')
+    if to_profile := _auth_redirect(request):
+        return to_profile
     form = AuthenticationForm(request, data=request.POST or None)
     if request.method == 'POST' and form.is_valid():
         login(request, form.get_user())
