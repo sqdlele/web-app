@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Профиль{% endblock %}
+{% block content %}
+<h1>Профиль</h1>
+<div class="profile-grid">
+    <section>
+        {% if profile_obj.avatar %}
+            <img class="avatar" src="{{ profile_obj.avatar.url }}" alt="Аватар">
+        {% else %}
+            <div class="avatar placeholder">Нет аватарки</div>
+        {% endif %}
+        <p><strong>Логин:</strong> {{ request.user.username }}</p>
+        <p><strong>Email:</strong> {{ request.user.email|default:'не заполнен' }}</p>
+        <p><strong>Телефон:</strong> {{ profile_obj.phone|default:'не заполнен' }}</p>
+        <p><a href="{% url 'profile_edit' %}">Изменить данные профиля</a></p>
+    </section>
+</div>
+
+<section>
+    <h2>Купленные товары</h2>
+    {% for purchase in purchases %}
+        <div class="purchase-item">
+            {{ purchase.product.name }} — {{ purchase.quantity }} шт. ({{ purchase.created_at|date:"d.m.Y H:i" }})
+        </div>
+    {% empty %}
+        <p>Покупок пока нет.</p>
+    {% endfor %}
+</section>
+{% endblock %}

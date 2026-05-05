@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+<div class="product-page">
+    <section>
+        {% if selected_image %}
+            <img class="main-image" src="{{ selected_image.image.url }}" alt="{{ selected_image.alt_text|default:product.name }}">
+        {% else %}
+            <div class="placeholder">Нет фото</div>
+        {% endif %}
+        <div class="thumbs">
+            {% for image in product.images.all %}
+                <a href="?image={{ image.id }}">
+                    <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}">
+                </a>
+            {% endfor %}
+        </div>
+    </section>
+    <section class="info-box">
+        <h1>{{ product.name }}</h1>
+        <p><strong>Цена:</strong> {{ product.price }} ₽</p>
+        <p>{{ product.description }}</p>
+        <form method="post" action="{% url 'add_to_cart' product.id %}">
+            {% csrf_token %}
+            <button type="submit">Добавить в корзину</button>
+        </form>
+        {% if request.user.is_authenticated %}
+            <form method="post" action="{% url 'buy_now' product.id %}">
+                {% csrf_token %}
+                <button type="submit">Купить сейчас</button>
+            </form>
+        {% else %}
+            <p>Для покупки нужно <a href="{% url 'login' %}">войти</a>.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+<section>
+    <h1>Добро пожаловать в магазин</h1>
+    <div class="slider">
+        {% for event in events %}
+            <img src="{{ event.image_url }}" alt="{{ event.title }}">
+        {% empty %}
+            <div class="placeholder">Пока нет событий</div>
+            <div class="placeholder">Добавьте события в админке</div>
+            <div class="placeholder">Раздел «События»</div>
+        {% endfor %}
+    </div>
+</section>
+
+<section>
+    <h2>Случайные товары</h2>
+    <div class="grid">
+        {% for product in random_products %}
+            <div class="card product-card">
+                <a class="card-image-link" href="{{ product.get_absolute_url }}">
+                    {% with product.images.first as image %}
+                        {% if image %}
+                            <img class="card-image" src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}">
+                        {% else %}
+                            <div class="card-image placeholder">Нет фото</div>
+                        {% endif %}
+                    {% endwith %}
+                </a>
+                <h3>{{ product.name }}</h3>
+                <p class="card-desc">{{ product.description|truncatechars:90 }}</p>
+                <p class="card-price"><strong>{{ product.price }} ₽</strong></p>
+                <a class="card-link" href="{{ product.get_absolute_url }}">Открыть</a>
+            </div>
+        {% empty %}
+            <p>Товары пока не добавлены.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="text-block">
+    <h2>Немного о нас</h2>
+    <p>Это простой учебный магазин: здесь можно посмотреть каталог, добавить товары в корзину и оформить покупку.</p>
+</section>
+{% endblock %}

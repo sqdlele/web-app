@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Каталог{% endblock %}
+{% block content %}
+<h1>Каталог товаров</h1>
+<div class="catalog-layout">
+    <aside class="filters">
+        <h3>Фильтры</h3>
+        <form method="get">
+            <label>Поиск</label>
+            <input type="text" name="q" value="{{ query }}" placeholder="Название или описание">
+
+            <label>Категория</label>
+            <select name="category">
+                <option value="">Все категории</option>
+                {% for category in categories %}
+                    <option value="{{ category.slug }}" {% if active_category == category.slug %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Применить</button>
+        </form>
+    </aside>
+    <section>
+        <div class="grid">
+            {% for product in products %}
+                <div class="card product-card">
+                    <a class="card-image-link" href="{{ product.get_absolute_url }}">
+                        {% with product.images.first as image %}
+                            {% if image %}
+                                <img class="card-image" src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}">
+                            {% else %}
+                                <div class="card-image placeholder">Нет фото</div>
+                            {% endif %}
+                        {% endwith %}
+                    </a>
+                    <h3>{{ product.name }}</h3>
+                    <p class="card-meta">{{ product.category.name }}</p>
+                    <p class="card-price"><strong>{{ product.price }} ₽</strong></p>
+                    <a class="card-link" href="{{ product.get_absolute_url }}">Подробнее</a>
+                </div>
+            {% empty %}
+                <p>По вашему запросу товары не найдены.</p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

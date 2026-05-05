@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Магазин{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<header class="container">
+    <nav class="menu">
+        <a href="{% url 'home' %}">Главная</a>
+        <a href="{% url 'catalog' %}">Каталог</a>
+        <a href="{% url 'about' %}">О нас</a>
+        <a href="{% url 'cart' %}">Корзина</a>
+        {% if request.user.is_authenticated %}
+            <a href="{% url 'profile' %}">Профиль</a>
+            <a href="{% url 'logout' %}">Выйти</a>
+        {% else %}
+            <a href="{% url 'login' %}">Вход</a>
+            <a href="{% url 'register' %}">Регистрация</a>
+        {% endif %}
+    </nav>
+</header>
+<main class="container">
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>
